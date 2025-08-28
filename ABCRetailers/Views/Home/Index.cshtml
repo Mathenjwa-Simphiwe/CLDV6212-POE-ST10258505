@@ -1,0 +1,100 @@
+﻿@model ABCRetailers.ViewModels.HomeViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4">Welcome to ABCRetailers</h1>
+    <p class="lead">Your one-stop shop for all your retail needs</p>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <a asp-controller="Customer" asp-action="Index" class="btn btn-primary btn-lg w-100 mb-2">
+                <i class="fas fa-users"></i> Manage Customers
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a asp-controller="Product" asp-action="Index" class="btn btn-success btn-lg w-100 mb-2">
+                <i class="fas fa-box"></i> Manage Products
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a asp-controller="Order" asp-action="Index" class="btn btn-info btn-lg w-100 mb-2">
+                <i class="fas fa-shopping-cart"></i> Manage Orders
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a asp-controller="Upload" asp-action="Index" class="btn btn-warning btn-lg w-100 mb-2">
+                <i class="fas fa-upload"></i> Upload Files
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-users"></i> Customers</h5>
+                <p class="card-text display-4">@Model.CustomerCount</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-box"></i> Products</h5>
+                <p class="card-text display-4">@Model.ProductCount</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-shopping-cart"></i> Orders</h5>
+                <p class="card-text display-4">@Model.OrderCount</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-chart-line"></i> Revenue</h5>
+                <p class="card-text display-4">R@(Model.FeaturedProducts.Sum(p => p.Price).ToString("N2"))</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h3>Featured Products</h3>
+        <div class="row">
+            @foreach (var product in Model.FeaturedProducts)
+            {
+                <div class="col-md-2 mb-4">
+                    <div class="card h-100">
+                        @if (!string.IsNullOrEmpty(product.ImageUrl))
+                        {
+                            <img src="@product.ImageUrl" class="card-img-top" alt="@product.ProductName" style="height: 220px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h6 class="card-title">@product.ProductName</h6>
+                            <p class="card-text text-success">$@product.Price.ToString("N2")</p>
+                            <span class="badge @(product.StockAvailable > 10 ? "bg-success" : product.StockAvailable > 0 ? "bg-warning" : "bg-danger")">
+                                Stock: @product.StockAvailable
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

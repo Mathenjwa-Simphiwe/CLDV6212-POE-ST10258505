@@ -1,0 +1,88 @@
+﻿@model ABCRetailers.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<h2>Order Details</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Order Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Order ID</dt>
+                    <dd class="col-sm-8">@Model.OrderId</dd>
+
+                    <dt class="col-sm-4">Customer</dt>
+                    <dd class="col-sm-8">@Model.Username</dd>
+
+                    <dt class="col-sm-4">Product</dt>
+                    <dd class="col-sm-8">@Model.ProductName</dd>
+
+                    <dt class="col-sm-4">Order Date</dt>
+                    <td>@Model.OrderDate.ToLocalTime().ToString("d")</td>
+
+                    <dt class="col-sm-4">Quantity</dt>
+                    <dd class="col-sm-8">@Model.Quantity</dd>
+
+                    <dt class="col-sm-4">Unit Price</dt>
+                    <dd class="col-sm-8">$@Model.UnitPrice.ToString("N2")</dd>
+
+                    <dt class="col-sm-4">Total Price</dt>
+                    <dd class="col-sm-8">$@Model.TotalPrice.ToString("N2")</dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">
+                        @{
+                            var badgeClass = Model.Status switch
+                            {
+                                "Pending" => "bg-warning",
+                                "Processing" => "bg-info",
+                                "Completed" => "bg-success",
+                                "Cancelled" => "bg-danger",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @badgeClass">@Model.Status</span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>System Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Customer ID</dt>
+                    <dd class="col-sm-8">@Model.CustomerId</dd>
+
+                    <dt class="col-sm-4">Product ID</dt>
+                    <dd class="col-sm-8">@Model.ProductId</dd>
+
+                    <dt class="col-sm-4">Partition Key</dt>
+                    <dd class="col-sm-8">@Model.PartitionKey</dd>
+
+                    <dt class="col-sm-4">Row Key</dt>
+                    <dd class="col-sm-8">@Model.RowKey</dd>
+
+                    <dt class="col-sm-4">Timestamp</dt>
+                    <dd class="col-sm-8">@Model.Timestamp</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a asp-action="Edit" asp-route-id="@Model.OrderId" class="btn btn-warning"><i class="fas fa-edit"></i> Edit Status</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</div>

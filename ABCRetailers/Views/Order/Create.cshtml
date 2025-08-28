@@ -1,0 +1,139 @@
+﻿@model ABCRetailers.ViewModels.OrderCreateViewModel
+
+@{
+    ViewData["Title"] = "Create Order";
+}
+
+<h2>Create New Order</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="CustomerId" class="control-label">Customer</label>
+                <select asp-for="CustomerId" class="form-control" asp-items="@(new SelectList(Model.Customers, "CustomerId", "Username"))">
+                    <option value="">-- Select Customer --</option>
+                </select>
+                <span asp-validation-for="CustomerId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ProductId" class="control-label">Product</label>
+                <select asp-for="ProductId" class="form-control" asp-items="@(new SelectList(Model.Products, "ProductId", "ProductName"))">
+                    <option value="">-- Select Product --</option>
+                </select>
+                <span asp-validation-for="ProductId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Quantity" class="control-label"></label>
+                <input asp-for="Quantity" class="form-control" type="number" min="1" />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+                <small id="stockInfo" class="form-text text-muted"></small>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Unit Price</label>
+                <input id="unitPrice" class="form-control" readonly />
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Total Price</label>
+                <input id="totalPrice" class="form-control" readonly />
+            </div>
+
+            <input type="hidden" asp-for="OrderDate" value="@DateTime.UtcNow" />
+            <input type="hidden" asp-for="Status" />
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Order</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Order Summary</h5>
+            </div>
+            <div class="card-body">
+                <div id="orderSummary" class="text-muted">
+                    Please select a customer and product to see order details.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            $('#ProductId, #Quantity').change(function() {
+                updatePrice();
+            });
+
+            $('#CustomerId, #ProductId').change(function() {
+                updateOrderSummary();
+            });
+
+            function updatePrice() {
+                var productId = $('#ProductId').val();
+                var quantity = $('#Quantity').val() || 0;
+
+                if (productId) {
+                    $.get('@Url.Action("GetProductPrice", "Order")', { productId: productId }, function(data) {
+                        if (data.success) {
+                            $('#unitPrice').val('$' + data.price.toFixed(2));
+                            var total = data.price * quantity;
+                            $('#totalPrice').val('$' + total.toFixed(2));
+
+                            // Update stock info
+                            if (quantity > data.stock) {
+                                $('#stockInfo').html('<span class="text-danger">Insufficient stock! Only ' + data.stock + ' available.</span>');
+                            } else {
+                                $('#stockInfo').html('Stock available: ' + data.stock);
+                            }
+                        }
+                    });
+                } else {
+                    $('#unitPrice').val('');
+                    $('#totalPrice').val('');
+                    $('#stockInfo').html('');
+                }
+            }
+
+            function updateOrderSummary() {
+                var customerId = $('#CustomerId').val();
+                var productId = $('#ProductId').val();
+                var quantity = $('#Quantity').val() || 0;
+
+                if (customerId && productId) {
+                    var customerName = $('#CustomerId option:selected').text();
+                    var productName = $('#ProductId option:selected').text();
+                    var unitPrice = $('#unitPrice').val();
+                    var totalPrice = $('#totalPrice').val();
+
+                    var summary = `
+                        <p><strong>Customer:</strong> ${customerName}</p>
+                        <p><strong>Product:</strong> ${productName}</p>
+                        <p><strong>Quantity:</strong> ${quantity}</p>
+                        <p><strong>Unit Price:</strong> ${unitPrice || '$0.00'}</p>
+                        <p><strong>Total Price:</strong> ${totalPrice || '$0.00'}</p>
+                    `;
+
+                    $('#orderSummary').html(summary);
+                } else {
+                    $('#orderSummary').html('Please select a customer and product to see order details.');
+                }
+            }
+        });
+    </script>
+}
